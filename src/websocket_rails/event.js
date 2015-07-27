@@ -8,8 +8,8 @@ var WebsocketEvent = function(message, successCallback, failureCallback) {
   var options;
   this.successCallback = successCallback;
   this.failureCallback = failureCallback;
-  this.name = message[0];
-  this.data = message[1];
+  this.name = message[0][0];
+  this.data = message[0][1];
   options = message[2];
   if (typeof options !== 'undefined' && options !== null) {
     this.id = options.id !== null ? options.id : (((1 + Math.random()) * 0x10000) | 0);

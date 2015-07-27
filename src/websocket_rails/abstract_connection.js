@@ -31,7 +31,7 @@
   AbstractConnection.prototype.onClose = function(event) {
     var closeEvent;
     if (this.dispatcher && this.dispatcher._conn === this) {
-      closeEvent = new WebSocketEvent(['connection_closed', event]);
+      closeEvent = new WebSocketEvent(['connectionClosed', event]);
       this.dispatcher.state = 'disconnected';
       return this.dispatcher.dispatch(closeEvent);
     }
@@ -40,7 +40,7 @@
   AbstractConnection.prototype.onError = function(event) {
     var errorEvent;
     if (this.dispatcher && this.dispatcher._conn === this) {
-      errorEvent = new WebSocketEvent(['connection_error', event]);
+      errorEvent = new WebSocketEvent(['connectionError', event]);
       this.dispatcher.state = 'disconnected';
       return this.dispatcher.dispatch(errorEvent);
     }

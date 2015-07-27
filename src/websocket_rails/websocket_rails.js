@@ -27,11 +27,10 @@ var __bind = function(fn, me){
         return fn.apply(me, arguments);
       };
     },
-    __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) {
-      for (var key in parent) {
-        if (!parent.hasOwnProperty(key)) {
-          child[key] = parent[key];
+      for (var key in parent.prototype) {
+        if (!child.prototype.hasOwnProperty(key)) {
+          child.prototype[key] = parent.prototype[key];
         }
       }
 
@@ -47,7 +46,7 @@ var __bind = function(fn, me){
 
 var WebSocketRails = function(url, useWebsockets) {
   this.url = url;
-  this.useWebsockets = useWebsockets !== null ? useWebsockets : true;
+  this.useWebsockets = typeof useWebsockets !== 'undefined' ? useWebsockets : true;
   this.connectionStale = __bind(this.connectionStale, this);
   this.supportsWebsockets = __bind(this.supportsWebsockets, this);
   this.dispatchChannel = __bind(this.dispatchChannel, this);
@@ -165,9 +164,11 @@ WebSocketRails.prototype.dispatch = function(event) {
   }
   _ref = this.callbacks[event.name];
   _results = [];
-  for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-    callback = _ref[_i];
-    _results.push(callback(event.data));
+  if (_ref) {
+    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+      callback = _ref[_i];
+      _results.push(callback(event.data));
+    }
   }
   return _results;
 };
@@ -203,7 +204,7 @@ WebSocketRails.prototype.unsubscribe = function(channelName) {
 };
 
 WebSocketRails.prototype.dispatchChannel = function(event) {
-  if (this.channels[event.channel] === null) {
+  if (typeof this.channels[event.channel] === 'undefined' || this.channels[event.channel] === null) {
     return;
   }
   return this.channels[event.channel].dispatch(event.name, event.data);

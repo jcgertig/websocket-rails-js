@@ -11,7 +11,7 @@ var WebsocketEvent = function(message, successCallback, failureCallback) {
   this.name = message[0];
   this.data = message[1];
   options = message[2];
-  if (options !== null) {
+  if (typeof options !== 'undefined' && options !== null) {
     this.id = options.id !== null ? options.id : (((1 + Math.random()) * 0x10000) | 0);
     this.channel = options.channel;
     this.token = options.token;

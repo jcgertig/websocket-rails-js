@@ -3,7 +3,8 @@
 The Event object stores all the relevant event information.
  */
 
-(function() {
+ var {WebSocketRails} = import('./websocket_rails');
+ module.exports = (function() {
   WebSocketRails.Event = (function() {
     function Event(message, success_callback, failure_callback) {
       var options;

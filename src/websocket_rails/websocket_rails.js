@@ -215,4 +215,10 @@ module.exports = (function() {
 
   })();
 
+  var AbstractConnection = require('./abstract_connection');
+  var Channel = require('./channel');
+  var Connection = require('./connection');
+  var WebsocketEvent = require('./event');
+  var HttpConnection = require('./http_connection');
+  var WebsocketConnection = require('./websocket_connection');
 }).call(this);

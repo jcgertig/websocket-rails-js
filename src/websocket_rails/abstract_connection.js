@@ -3,7 +3,8 @@
  Abstract Interface for the WebSocketRails client.
  */
 
-(function() {
+ var {WebSocketRails} = import('./websocket_rails');
+ module.exports = (function() {
   WebSocketRails.AbstractConnection = (function() {
     function AbstractConnection(url, dispatcher) {
       this.dispatcher = dispatcher;

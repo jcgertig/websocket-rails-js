@@ -2,7 +2,7 @@
   "name": "websocket-rails-js",
   "version": "1.0.0",
   "description": "Client js library for websocket-rails",
-  "main": "websocket-rails-js.min.js",
+  "main": "src/websocket_rails/websocket_rails.js",
   "scripts": {
     "test": "grunt test"
   },
@@ -29,5 +29,8 @@
     "grunt-cli": "^0.1.13",
     "grunt-contrib-jshint": "^0.11.2",
     "grunt-contrib-uglify": "^0.9.1"
+  },
+  "dependencies": {
+    "websocket-rails-js": "git://github.com/jcgertig/websocket-rails-js"
   }
 }

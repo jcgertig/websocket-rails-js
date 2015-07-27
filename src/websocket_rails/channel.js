@@ -9,7 +9,8 @@ For instance:
   awesome_channel.trigger('awesome_event', awesome_object);
  */
 
-(function() {
+ var {WebSocketRails} = import('./websocket_rails');
+ module.exports = (function() {
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   WebSocketRails.Channel = (function() {

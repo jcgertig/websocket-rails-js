@@ -3,7 +3,8 @@
 WebSocket Interface for the WebSocketRails client.
  */
 
-(function() {
+ var {WebSocketRails} = import('./websocket_rails');
+ module.exports = (function() {
   WebSocketRails.Connection = (function() {
     function Connection(url, dispatcher) {
       this.url = url;

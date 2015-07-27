@@ -17,3 +17,4 @@ test/version_tmp
 tmp
 spec/javascripts/generated/*.js
 spec/javascripts/helpers/*.js
+node_modules

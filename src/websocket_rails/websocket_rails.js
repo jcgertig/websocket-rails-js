@@ -30,7 +30,7 @@ var __bind = function(fn, me){
     __hasProp = {}.hasOwnProperty,
     __extends = function(child, parent) {
       for (var key in parent) {
-        if (!__hasProp.call(parent, key)) {
+        if (!parent.hasOwnProperty(key)) {
           child[key] = parent[key];
         }
       }

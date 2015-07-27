@@ -13,10 +13,9 @@ For instance:
 
 
 
-module.exports = (function() {
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
-  WebSocketRails.Channel = (function() {
+  module.exports = (function() {
     function Channel(name, _dispatcher, isPrivate, onSuccess, onFailure) {
       var event, eventName, _ref;
       this.name = name;
@@ -135,5 +134,3 @@ module.exports = (function() {
     return Channel;
 
   })();
-
-}).call(this);

@@ -217,10 +217,10 @@ var WebSocketRails = (function() {
 
 })();
 
-require('./abstract_connection');
-require('./channel');
-require('./connection');
-require('./event');
+WebSocketRails.AbstractConnection = require('./abstract_connection');
+WebSocketRails.Channel = require('./channel');
+WebSocketRails.Connection = require('./connection');
+WebSocketRails.Event = require('./event');
 require('./http_connection');
 require('./websocket_connection');
 

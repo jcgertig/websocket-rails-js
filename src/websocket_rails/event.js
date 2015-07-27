@@ -5,8 +5,7 @@
 The Event object stores all the relevant event information.
  */
 
-module.exports = (function() {
-  WebSocketRails.Event = (function() {
+  module.exports = (function() {
     function Event(message, successCallback, failureCallback) {
       var options;
       this.successCallback = successCallback;
@@ -64,5 +63,3 @@ module.exports = (function() {
     return Event;
 
   })();
-
-}).call(this);

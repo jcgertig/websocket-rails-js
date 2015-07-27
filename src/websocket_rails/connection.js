@@ -5,8 +5,7 @@
 WebSocket Interface for the WebSocketRails client.
  */
 
-module.exports = (function() {
-  WebSocketRails.Connection = (function() {
+  module.exports = (function() {
     function Connection(url, dispatcher) {
       this.url = url;
       this.dispatcher = dispatcher;
@@ -91,5 +90,3 @@ module.exports = (function() {
     return Connection;
 
   })();
-
-}).call(this);

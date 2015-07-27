@@ -1,0 +1,33 @@
+{
+  "name": "websocket-rails-js",
+  "version": "1.0.0",
+  "description": "Client js library for websocket-rails",
+  "main": "websocket-rails-js.min.js",
+  "scripts": {
+    "test": "grunt test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jcgertig/websocket-rails-js.git"
+  },
+  "keywords": [
+    "websockets",
+    "rails",
+    "js",
+    "javascript",
+    "websocket-rails",
+    "websocket-rails-js"
+  ],
+  "author": "websocket-rails, Jonathan Gertig",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jcgertig/websocket-rails-js/issues"
+  },
+  "homepage": "https://github.com/jcgertig/websocket-rails-js",
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-cli": "^0.1.13",
+    "grunt-contrib-jshint": "^0.11.2",
+    "grunt-contrib-uglify": "^0.9.1"
+  }
+}

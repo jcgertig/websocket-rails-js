@@ -21,7 +21,7 @@ Stop listening for new events from the server
   dispatcher.unbind('event')
  */
 
-(function() {
+module.exports = (function() {
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   this.WebSocketRails = (function() {

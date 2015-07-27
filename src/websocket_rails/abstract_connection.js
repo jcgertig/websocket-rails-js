@@ -1,10 +1,10 @@
 'use strict';
-/* global WebSocketRails */
 
 /*
  Abstract Interface for the WebSocketRails client.
  */
 
+  var WebSocketEvent = require('./event');
 
   var AbstractConnection = function(url, dispatcher) {
     this.dispatcher = dispatcher;
@@ -31,7 +31,7 @@
   AbstractConnection.prototype.onClose = function(event) {
     var closeEvent;
     if (this.dispatcher && this.dispatcher._conn === this) {
-      closeEvent = new WebSocketRails.Event(['connectionClosed', event]);
+      closeEvent = new WebSocketEvent(['connection_closed', event]);
       this.dispatcher.state = 'disconnected';
       return this.dispatcher.dispatch(closeEvent);
     }
@@ -40,7 +40,7 @@
   AbstractConnection.prototype.onError = function(event) {
     var errorEvent;
     if (this.dispatcher && this.dispatcher._conn === this) {
-      errorEvent = new WebSocketRails.Event(['connectionError', event]);
+      errorEvent = new WebSocketEvent(['connection_error', event]);
       this.dispatcher.state = 'disconnected';
       return this.dispatcher.dispatch(errorEvent);
     }

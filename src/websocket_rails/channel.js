@@ -1,5 +1,4 @@
 'use strict';
-/* global WebSocketRails */
 
 /*
 The channel object is returned when you subscribe to a channel.
@@ -11,7 +10,12 @@ For instance:
   awesome_channel.trigger('awesome_event', awesome_object);
  */
 
-  var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+  var WebSocketEvent = require('./event');
+  var __bind = function(fn, me){
+                return function(){
+                  return fn.apply(me, arguments);
+                };
+              };
 
   var Channel = function(name, _dispatcher, isPrivate, onSuccess, onFailure) {
     var event, eventName, _ref;
@@ -23,12 +27,12 @@ For instance:
     this._failureLauncher = __bind(this._failureLauncher, this);
     this._successLauncher = __bind(this._successLauncher, this);
     if (this.isPrivate) {
-      eventName = 'websocket_rails.subscribePrivate';
+      eventName = 'websocket_rails.subscribe_private';
     } else {
       eventName = 'websocket_rails.subscribe';
     }
     this.connectionId = (_ref = this._dispatcher._conn) != null ? _ref.connectionId : void 0;
-    event = new WebSocketRails.Event([
+    event = new WebSocketEvent([
       eventName, {
         channel: this.name
       }, {
@@ -49,7 +53,7 @@ For instance:
     var event, eventName, _ref;
     if (this.connectionId === ((_ref = this._dispatcher._conn) != null ? _ref.connectionId : void 0)) {
       eventName = 'websocket_rails.unsubscribe';
-      event = new WebSocketRails.Event([
+      event = new WebSocketEvent([
         eventName, {
           channel: this.name
         }, {
@@ -77,7 +81,7 @@ For instance:
 
   Channel.prototype.trigger = function(eventName, message) {
     var event;
-    event = new WebSocketRails.Event([
+    event = new WebSocketEvent([
       eventName, message, {
         connectionId: this.connectionId,
         channel: this.name,

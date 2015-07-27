@@ -50,8 +50,8 @@
       return $.ajax(this._url, {
         type: 'POST',
         data: {
-          'client_id' : this.connectionId,
-          'data' : payload
+          'client_id': this.connectionId,
+          'data': payload
         },
         success: function() {}
       });

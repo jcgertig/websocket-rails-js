@@ -4,42 +4,8 @@
 /*
  HTTP Interface for the WebSocketRails client.
  */
-     var HttpConnection;
 
-     HttpConnection.prototype.connectionType = 'http';
-
-     HttpConnection.prototype._httpFactories = function() {
-       return [
-         function() {
-           return new XMLHttpRequest();
-         }, function() {
-           return new ActiveXObject('Msxml2.XMLHTTP');
-         }, function() {
-           return new ActiveXObject('Msxml3.XMLHTTP');
-         }, function() {
-           return new ActiveXObject('Microsoft.XMLHTTP');
-         }
-       ];
-     };
-
-     HttpConnection.prototype._createXMLHttpObject = function() {
-       var e, factories, factory, xmlhttp, _i, _len;
-       xmlhttp = false;
-       factories = this._httpFactories();
-       for (_i = 0, _len = factories.length; _i < _len; _i++) {
-         factory = factories[_i];
-         try {
-           xmlhttp = factory();
-         } catch (_error) {
-           e = _error;
-           continue;
-         }
-         break;
-       }
-       return xmlhttp;
-     };
-
-     HttpConnection = function(url, dispatcher) {
+    var HttpConnection = function(url, dispatcher) {
       this.dispatcher = dispatcher;
       HttpConnection.__super__.constructor.apply(this, arguments);
       this._url = 'http://' + url;
@@ -53,6 +19,22 @@
       this._conn.addEventListener('load', this.onClose, false);
       this._conn.open('GET', this._url, true);
       this._conn.send();
+    };
+
+    HttpConnection.prototype.connectionType = 'http';
+
+    HttpConnection.prototype._httpFactories = function() {
+      return [
+        function() {
+          return new XMLHttpRequest();
+        }, function() {
+          return new ActiveXObject('Msxml2.XMLHTTP');
+        }, function() {
+          return new ActiveXObject('Msxml3.XMLHTTP');
+        }, function() {
+          return new ActiveXObject('Microsoft.XMLHTTP');
+        }
+      ];
     };
 
     HttpConnection.prototype.close = function() {
@@ -73,6 +55,23 @@
         },
         success: function() {}
       });
+    };
+
+    HttpConnection.prototype._createXMLHttpObject = function() {
+      var e, factories, factory, xmlhttp, _i, _len;
+      xmlhttp = false;
+      factories = this._httpFactories();
+      for (_i = 0, _len = factories.length; _i < _len; _i++) {
+        factory = factories[_i];
+        try {
+          xmlhttp = factory();
+        } catch (_error) {
+          e = _error;
+          continue;
+        }
+        break;
+      }
+      return xmlhttp;
     };
 
     HttpConnection.prototype._parseStream = function() {

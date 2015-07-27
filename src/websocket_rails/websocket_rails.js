@@ -243,8 +243,8 @@ WebSocketRails.Channel = require('./channel');
 WebSocketRails.Connection = require('./connection');
 WebSocketRails.Event = require('./event');
 WebSocketRails.HttpConnection = require('./http_connection');
-__extends(WebSocketRails.HttpConnection , WebSocketRails.AbstractConnection);
+__extends(WebSocketRails.HttpConnection, WebSocketRails.AbstractConnection);
 WebSocketRails.WebSocketConnection = require('./websocket_connection');
-__extends(WebSocketRails.WebSocketConnection , WebSocketRails.AbstractConnection);
+__extends(WebSocketRails.WebSocketConnection, WebSocketRails.AbstractConnection);
 
 module.exports = WebSocketRails;

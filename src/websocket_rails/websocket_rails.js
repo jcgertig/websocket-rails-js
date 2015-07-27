@@ -39,7 +39,7 @@ var __bind = function(fn, me){
         this.constructor = child;
       }
 
-      Ctor.prototype = parent.prototype;
+      Ctor.prototype = child.prototype;
       child.prototype = new Ctor();
       child.__super__ = parent.prototype;
       return child;

@@ -5,7 +5,7 @@ WebsocketRails JavaScript Client
 
 Setting up the dispatcher:
   var dispatcher = new WebSocketRails('localhost:3000/websocket');
-  dispatcher.onOpen = function() {
+  dispatcher.on_open = function() {
     // trigger a server event immediately after opening connection
     dispatcher.trigger('new_user',{user_name: 'guest'});
   })
@@ -22,12 +22,7 @@ Stop listening for new events from the server
   dispatcher.unbind('event')
  */
 
-var __bind = function(fn, me){
-      return function(){
-        return fn.apply(me, arguments);
-      };
-    },
-    __extends = function(child, parent) {
+var __extends = function(child, parent) {
       for (var key in parent.prototype) {
         if (!child.prototype.hasOwnProperty(key)) {
           child.prototype[key] = parent.prototype[key];
@@ -44,22 +39,30 @@ var __bind = function(fn, me){
       return child;
     };
 
+var AbstractConnection = require('./abstract_connection');
+var WebSocketChannel = require('./channel');
+var WebSocketEvent = require('./event');
+var HttpConnection = require('./http_connection');
+var WebSocketConnection = require('./websocket_connection');
+__extends(HttpConnection, AbstractConnection);
+__extends(WebSocketConnection, AbstractConnection);
+
 var WebSocketRails = function(url, useWebsockets) {
   this.url = url;
   this.useWebsockets = typeof useWebsockets !== 'undefined' ? useWebsockets : true;
-  this.connectionStale = __bind(this.connectionStale, this);
-  this.supportsWebsockets = __bind(this.supportsWebsockets, this);
-  this.dispatchChannel = __bind(this.dispatchChannel, this);
-  this.unsubscribe = __bind(this.unsubscribe, this);
-  this.subscribePrivate = __bind(this.subscribePrivate, this);
-  this.subscribe = __bind(this.subscribe, this);
-  this.dispatch = __bind(this.dispatch, this);
-  this.triggerEvent = __bind(this.triggerEvent, this);
-  this.trigger = __bind(this.trigger, this);
-  this.bind = __bind(this.bind, this);
-  this.connectionEstablished = __bind(this.connectionEstablished, this);
-  this.newMessage = __bind(this.newMessage, this);
-  this.reconnect = __bind(this.reconnect, this);
+  this.connectionStale = this.connectionStale.bind(this);
+  this.supportsWebsockets = this.supportsWebsockets.bind(this);
+  this.dispatchChannel = this.dispatchChannel.bind(this);
+  this.unsubscribe = this.unsubscribe.bind(this);
+  this.subscribePrivate = this.subscribePrivate.bind(this);
+  this.subscribe = this.subscribe.bind(this);
+  this.dispatch = this.dispatch.bind(this);
+  this.triggerEvent = this.triggerEvent.bind(this);
+  this.trigger = this.trigger.bind(this);
+  this.bind = this.bind.bind(this);
+  this.connectionEstablished = this.connectionEstablished.bind(this);
+  this.newMessage = this.newMessage.bind(this);
+  this.reconnect = this.reconnect.bind(this);
   this.callbacks = {};
   this.channels = {};
   this.queue = {};
@@ -69,12 +72,12 @@ var WebSocketRails = function(url, useWebsockets) {
 WebSocketRails.prototype.connect = function() {
   this.state = 'connecting';
   if (!(this.supportsWebsockets() && this.useWebsockets)) {
-    this._conn = new WebSocketRails.HttpConnection(this.url, this);
+    this._conn = new HttpConnection(this.url, this);
   } else {
-    this._conn = new WebSocketRails.WebSocketConnection(this.url, this);
+    this._conn = new WebSocketConnection(this.url, this);
   }
   this._conn.newMessage = this.newMessage;
-  return this._conn.newMessage;
+  return this._conn;
 };
 
 WebSocketRails.prototype.disconnect = function() {
@@ -104,7 +107,7 @@ WebSocketRails.prototype.reconnect = function() {
 
 WebSocketRails.prototype.newMessage = function(data) {
   var event, _ref;
-  event = new WebSocketRails.Event(data);
+  event = new WebSocketEvent(data);
   if (event.isResult()) {
     if ((_ref = this.queue[event.id]) !== null) {
       _ref.runCallbacks(event.success, event.data);
@@ -139,9 +142,9 @@ WebSocketRails.prototype.bind = function(eventName, callback) {
 
 WebSocketRails.prototype.trigger = function(eventName, data, successCallback, failureCallback) {
   var event;
-  event = new WebSocketRails.Event([
+  event = new WebSocketEvent([
     eventName, data, {
-      connectionId: this.connectionId
+      'connection_id': this.connectionId
     }
   ], successCallback, failureCallback);
   this.queue[event.id] = event;
@@ -159,6 +162,7 @@ WebSocketRails.prototype.triggerEvent = function(event) {
 
 WebSocketRails.prototype.dispatch = function(event) {
   var callback, _i, _len, _ref, _results;
+  console.log(event.name);
   if (this.callbacks[event.name] === null) {
     return;
   }
@@ -176,7 +180,7 @@ WebSocketRails.prototype.dispatch = function(event) {
 WebSocketRails.prototype.subscribe = function(channelName, successCallback, failureCallback) {
   var channel;
   if (this.channels[channelName] === null) {
-    channel = new WebSocketRails.Channel(channelName, this, false, successCallback, failureCallback);
+    channel = new WebSocketChannel(channelName, this, false, successCallback, failureCallback);
     this.channels[channelName] = channel;
     return channel;
   } else {
@@ -187,7 +191,7 @@ WebSocketRails.prototype.subscribe = function(channelName, successCallback, fail
 WebSocketRails.prototype.subscribePrivate = function(channelName, successCallback, failureCallback) {
   var channel;
   if (this.channels[channelName] === null) {
-    channel = new WebSocketRails.Channel(channelName, this, true, successCallback, failureCallback);
+    channel = new WebSocketChannel(channelName, this, true, successCallback, failureCallback);
     this.channels[channelName] = channel;
     return channel;
   } else {
@@ -233,14 +237,5 @@ WebSocketRails.prototype.reconnectChannels = function() {
   }
   return _results;
 };
-
-WebSocketRails.AbstractConnection = require('./abstract_connection');
-WebSocketRails.Channel = require('./channel');
-WebSocketRails.Connection = require('./connection');
-WebSocketRails.Event = require('./event');
-WebSocketRails.HttpConnection = require('./http_connection');
-__extends(WebSocketRails.HttpConnection, WebSocketRails.AbstractConnection);
-WebSocketRails.WebSocketConnection = require('./websocket_connection');
-__extends(WebSocketRails.WebSocketConnection, WebSocketRails.AbstractConnection);
 
 module.exports = WebSocketRails;

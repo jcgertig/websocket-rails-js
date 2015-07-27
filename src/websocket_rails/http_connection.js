@@ -1,31 +1,25 @@
 'use strict';
-/* global ActiveXObject, WebSocketRails */
+/* global ActiveXObject, $ */
 
 /*
  HTTP Interface for the WebSocketRails client.
  */
 
-module.exports = (function() {
-  var __hasProp = {}.hasOwnProperty,
-      __extends = function(child, parent) {
-        for (var key in parent) {
-          if (__hasProp.call(parent, key)) {
-            child[key] = parent[key];
-          }
-        }
-
-        function Ctor() {
-          this.constructor = child;
-        }
-
-        Ctor.prototype = parent.prototype;
-        child.prototype = new Ctor();
-        child.__super__ = parent.prototype;
-        return child;
-      };
-
-  WebSocketRails.HttpConnection = (function(_super) {
-    __extends(HttpConnection, _super);
+    var HttpConnection = function(url, dispatcher) {
+      this.dispatcher = dispatcher;
+      HttpConnection.__super__.constructor.apply(this, arguments);
+      this._url = 'http://' + url;
+      this._conn = this._createXMLHttpObject();
+      this.lastPos = 0;
+      this._conn.onreadystatechange = (function(_this) {
+        return function() {
+          return _this._parseStream();
+        };
+      })(this);
+      this._conn.addEventListener('load', this.onClose, false);
+      this._conn.open('GET', this._url, true);
+      this._conn.send();
+    };
 
     HttpConnection.prototype.connectionType = 'http';
 
@@ -42,22 +36,6 @@ module.exports = (function() {
         }
       ];
     };
-
-    function HttpConnection(url, dispatcher) {
-      this.dispatcher = dispatcher;
-      HttpConnection.__super__.constructor.apply(this, arguments);
-      this._url = 'http://' + url;
-      this._conn = this._createXMLHttpObject();
-      this.lastPos = 0;
-      this._conn.onreadystatechange = (function(_this) {
-        return function() {
-          return _this._parseStream();
-        };
-      })(this);
-      this._conn.addEventListener('load', this.onClose, false);
-      this._conn.open('GET', this._url, true);
-      this._conn.send();
-    }
 
     HttpConnection.prototype.close = function() {
       return this._conn.abort();
@@ -107,8 +85,4 @@ module.exports = (function() {
       }
     };
 
-    return HttpConnection;
-
-  })(WebSocketRails.AbstractConnection);
-
-}).call(this);
+    module.exports = HttpConnection;

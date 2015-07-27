@@ -5,8 +5,7 @@
 WebSocket Interface for the WebSocketRails client.
  */
 
-  module.exports = (function() {
-    function Connection(url, dispatcher) {
+    var Connection = function(url, dispatcher) {
       this.url = url;
       this.dispatcher = dispatcher;
       this.messageQueue = [];
@@ -37,7 +36,7 @@ WebSocket Interface for the WebSocketRails client.
           return _this.onError(event);
         };
       })(this);
-    }
+    };
 
     Connection.prototype.onMessage = function(event) {
       return this.dispatcher.newMessage(event);
@@ -87,6 +86,4 @@ WebSocket Interface for the WebSocketRails client.
       return this.messageQueue;
     };
 
-    return Connection;
-
-  })();
+    module.exports = Connection;

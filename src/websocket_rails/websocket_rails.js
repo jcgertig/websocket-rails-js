@@ -22,7 +22,28 @@ Stop listening for new events from the server
   dispatcher.unbind('event')
  */
 
-var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
+var __bind = function(fn, me){
+      return function(){
+        return fn.apply(me, arguments);
+      };
+    },
+    __hasProp = {}.hasOwnProperty,
+    __extends = function(child, parent) {
+      for (var key in parent) {
+        if (__hasProp.call(parent, key)) {
+          child[key] = parent[key];
+        }
+      }
+
+      function Ctor() {
+        this.constructor = child;
+      }
+
+      Ctor.prototype = parent.prototype;
+      child.prototype = new Ctor();
+      child.__super__ = parent.prototype;
+      return child;
+    };
 
 var WebSocketRails = (function() {
   function WebSocketRails(url, useWebsockets) {
@@ -221,7 +242,9 @@ WebSocketRails.AbstractConnection = require('./abstract_connection');
 WebSocketRails.Channel = require('./channel');
 WebSocketRails.Connection = require('./connection');
 WebSocketRails.Event = require('./event');
-require('./http_connection');
-require('./websocket_connection');
+WebSocketRails.HttpConnection = require('./http_connection');
+__extends(WebSocketRails.HttpConnection , WebSocketRails.AbstractConnection);
+WebSocketRails.WebSocketConnection = require('./websocket_connection');
+__extends(WebSocketRails.WebSocketConnection , WebSocketRails.AbstractConnection);
 
 module.exports = WebSocketRails;

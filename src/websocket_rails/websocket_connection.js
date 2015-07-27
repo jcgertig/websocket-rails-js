@@ -1,34 +1,10 @@
 'use strict';
-/* global WebSocketRails */
 
 /*
 WebSocket Interface for the WebSocketRails client.
  */
 
-var __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) {
-      for (var key in parent) {
-        if (__hasProp.call(parent, key)) {
-          child[key] = parent[key];
-        }
-      }
-
-      function Ctor() {
-        this.constructor = child;
-      }
-
-      Ctor.prototype = parent.prototype;
-      child.prototype = new Ctor();
-      child.__super__ = parent.prototype;
-      return child;
-    };
-
-WebSocketRails.WebSocketConnection = (function(_super) {
-  __extends(WebSocketConnection, _super);
-
-  WebSocketConnection.prototype.connection_type = 'websocket';
-
-  function WebSocketConnection(url, dispatcher) {
+  var WebSocketConnection = function(url, dispatcher) {
     this.url = url;
     this.dispatcher = dispatcher;
     WebSocketConnection.__super__.constructor.apply(this, arguments);
@@ -57,7 +33,9 @@ WebSocketRails.WebSocketConnection = (function(_super) {
         return _this.onError(event);
       };
     })(this);
-  }
+  };
+
+  WebSocketConnection.prototype.connectionType = 'websocket';
 
   WebSocketConnection.prototype.close = function() {
     return this._conn.close();
@@ -68,6 +46,4 @@ WebSocketRails.WebSocketConnection = (function(_super) {
     return this._conn.send(event.serialize());
   };
 
-  return WebSocketConnection;
-
-})(WebSocketRails.AbstractConnection);
+  module.exports = WebSocketConnection;

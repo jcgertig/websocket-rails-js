@@ -5,11 +5,11 @@
  Abstract Interface for the WebSocketRails client.
  */
 
-module.exports = (function() {
-  function AbstractConnection(url, dispatcher) {
+
+  var AbstractConnection = function(url, dispatcher) {
     this.dispatcher = dispatcher;
     this.messageQueue = [];
-  }
+  };
 
   AbstractConnection.prototype.close = function() {};
 
@@ -67,6 +67,4 @@ module.exports = (function() {
     return this.messageQueue;
   };
 
-  return AbstractConnection;
-
-})();
+  module.exports = AbstractConnection;

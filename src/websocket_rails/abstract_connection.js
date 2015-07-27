@@ -1,68 +1,71 @@
+'use strict';
+/* global WebSocketRails */
 
 /*
  Abstract Interface for the WebSocketRails client.
  */
 
- var {WebSocketRails} = import('./websocket_rails');
- module.exports = (function() {
+module.exports = (function() {
   WebSocketRails.AbstractConnection = (function() {
     function AbstractConnection(url, dispatcher) {
       this.dispatcher = dispatcher;
-      this.message_queue = [];
+      this.messageQueue = [];
     }
 
     AbstractConnection.prototype.close = function() {};
 
     AbstractConnection.prototype.trigger = function(event) {
       if (this.dispatcher.state !== 'connected') {
-        return this.message_queue.push(event);
+        return this.messageQueue.push(event);
       } else {
-        return this.send_event(event);
+        return this.sendEvent(event);
       }
     };
 
-    AbstractConnection.prototype.send_event = function(event) {
-      if (this.connection_id != null) {
-        return event.connection_id = this.connection_id;
+    AbstractConnection.prototype.sendEvent = function(event) {
+      if (this.connectionId != null) {
+        event.connectionId = this.connectionId;
+        return event.connectionId;
       }
     };
 
-    AbstractConnection.prototype.on_close = function(event) {
-      var close_event;
+    AbstractConnection.prototype.onClose = function(event) {
+      var closeEvent;
       if (this.dispatcher && this.dispatcher._conn === this) {
-        close_event = new WebSocketRails.Event(['connection_closed', event]);
+        closeEvent = new WebSocketRails.Event(['connectionClosed', event]);
         this.dispatcher.state = 'disconnected';
-        return this.dispatcher.dispatch(close_event);
+        return this.dispatcher.dispatch(closeEvent);
       }
     };
 
-    AbstractConnection.prototype.on_error = function(event) {
-      var error_event;
+    AbstractConnection.prototype.onError = function(event) {
+      var errorEvent;
       if (this.dispatcher && this.dispatcher._conn === this) {
-        error_event = new WebSocketRails.Event(['connection_error', event]);
+        errorEvent = new WebSocketRails.Event(['connectionError', event]);
         this.dispatcher.state = 'disconnected';
-        return this.dispatcher.dispatch(error_event);
+        return this.dispatcher.dispatch(errorEvent);
       }
     };
 
-    AbstractConnection.prototype.on_message = function(event_data) {
+    AbstractConnection.prototype.onMessage = function(eventData) {
       if (this.dispatcher && this.dispatcher._conn === this) {
-        return this.dispatcher.new_message(event_data);
+        return this.dispatcher.newMessage(eventData);
       }
     };
 
-    AbstractConnection.prototype.setConnectionId = function(connection_id) {
-      this.connection_id = connection_id;
+    AbstractConnection.prototype.setConnectionId = function(connectionId) {
+      this.connectionId = connectionId;
     };
 
-    AbstractConnection.prototype.flush_queue = function() {
+    AbstractConnection.prototype.flushQueue = function() {
       var event, _i, _len, _ref;
-      _ref = this.message_queue;
+      _ref = this.messageQueue;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         event = _ref[_i];
         this.trigger(event);
       }
-      return this.message_queue = [];
+      this.messageQueue = [];
+      return this.messageQueue;
     };
 
     return AbstractConnection;

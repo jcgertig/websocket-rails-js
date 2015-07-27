@@ -1,3 +1,5 @@
+'use strict';
+/* global WebSocketRails */
 
 /*
 The channel object is returned when you subscribe to a channel.
@@ -9,77 +11,79 @@ For instance:
   awesome_channel.trigger('awesome_event', awesome_object);
  */
 
- var {WebSocketRails} = import('./websocket_rails');
- module.exports = (function() {
+
+
+module.exports = (function() {
   var __bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
   WebSocketRails.Channel = (function() {
-    function Channel(name, _dispatcher, is_private, on_success, on_failure) {
-      var event, event_name, _ref;
+    function Channel(name, _dispatcher, isPrivate, onSuccess, onFailure) {
+      var event, eventName, _ref;
       this.name = name;
       this._dispatcher = _dispatcher;
-      this.is_private = is_private;
-      this.on_success = on_success;
-      this.on_failure = on_failure;
-      this._failure_launcher = __bind(this._failure_launcher, this);
-      this._success_launcher = __bind(this._success_launcher, this);
-      if (this.is_private) {
-        event_name = 'websocket_rails.subscribe_private';
+      this.isPrivate = isPrivate;
+      this.onSuccess = onSuccess;
+      this.onFailure = onFailure;
+      this._failureLauncher = __bind(this._failureLauncher, this);
+      this._successLauncher = __bind(this._successLauncher, this);
+      if (this.isPrivate) {
+        eventName = 'websocket_rails.subscribePrivate';
       } else {
-        event_name = 'websocket_rails.subscribe';
+        eventName = 'websocket_rails.subscribe';
       }
-      this.connection_id = (_ref = this._dispatcher._conn) != null ? _ref.connection_id : void 0;
+      this.connectionId = (_ref = this._dispatcher._conn) != null ? _ref.connectionId : void 0;
       event = new WebSocketRails.Event([
-        event_name, {
+        eventName, {
           channel: this.name
         }, {
-          connection_id: this.connection_id
+          connectionId: this.connectionId
         }
-      ], this._success_launcher, this._failure_launcher);
-      this._dispatcher.trigger_event(event);
+      ], this._successLauncher, this._failureLauncher);
+      this._dispatcher.triggerEvent(event);
       this._callbacks = {};
       this._token = void 0;
       this._queue = [];
     }
 
-    Channel.prototype.is_public = function() {
-      return !this.is_private;
+    Channel.prototype.isPublic = function() {
+      return !this.isPrivate;
     };
 
     Channel.prototype.destroy = function() {
-      var event, event_name, _ref;
-      if (this.connection_id === ((_ref = this._dispatcher._conn) != null ? _ref.connection_id : void 0)) {
-        event_name = 'websocket_rails.unsubscribe';
+      var event, eventName, _ref;
+      if (this.connectionId === ((_ref = this._dispatcher._conn) != null ? _ref.connectionId : void 0)) {
+        eventName = 'websocket_rails.unsubscribe';
         event = new WebSocketRails.Event([
-          event_name, {
+          eventName, {
             channel: this.name
           }, {
-            connection_id: this.connection_id,
+            connectionId: this.connectionId,
             token: this._token
           }
         ]);
-        this._dispatcher.trigger_event(event);
+        this._dispatcher.triggerEvent(event);
       }
-      return this._callbacks = {};
+      this._callbacks = {};
+      return this._callbacks;
     };
 
-    Channel.prototype.bind = function(event_name, callback) {
+    Channel.prototype.bind = function(eventName, callback) {
       var _base;
-      if ((_base = this._callbacks)[event_name] == null) {
-        _base[event_name] = [];
+      if ((_base = this._callbacks)[eventName] === null) {
+        _base[eventName] = [];
       }
-      return this._callbacks[event_name].push(callback);
+      return this._callbacks[eventName].push(callback);
     };
 
-    Channel.prototype.unbind = function(event_name) {
-      return delete this._callbacks[event_name];
+    Channel.prototype.unbind = function(eventName) {
+      return delete this._callbacks[eventName];
     };
 
-    Channel.prototype.trigger = function(event_name, message) {
+    Channel.prototype.trigger = function(eventName, message) {
       var event;
       event = new WebSocketRails.Event([
-        event_name, message, {
-          connection_id: this.connection_id,
+        eventName, message, {
+          connectionId: this.connectionId,
           channel: this.name,
           token: this._token
         }
@@ -87,25 +91,26 @@ For instance:
       if (!this._token) {
         return this._queue.push(event);
       } else {
-        return this._dispatcher.trigger_event(event);
+        return this._dispatcher.triggerEvent(event);
       }
     };
 
-    Channel.prototype.dispatch = function(event_name, message) {
+    Channel.prototype.dispatch = function(eventName, message) {
       var callback, event, _i, _j, _len, _len1, _ref, _ref1, _results;
-      if (event_name === 'websocket_rails.channel_token') {
-        this._token = message['token'];
+      if (eventName === 'websocket_rails.channel_token') {
+        this._token = message.token;
         _ref = this._queue;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           event = _ref[_i];
-          this._dispatcher.trigger_event(event);
+          this._dispatcher.triggerEvent(event);
         }
-        return this._queue = [];
+        this._queue = [];
+        return this._queue;
       } else {
-        if (this._callbacks[event_name] == null) {
+        if (this._callbacks[eventName] === null) {
           return;
         }
-        _ref1 = this._callbacks[event_name];
+        _ref1 = this._callbacks[eventName];
         _results = [];
         for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
           callback = _ref1[_j];
@@ -115,15 +120,15 @@ For instance:
       }
     };
 
-    Channel.prototype._success_launcher = function(data) {
-      if (this.on_success != null) {
-        return this.on_success(data);
+    Channel.prototype._successLauncher = function(data) {
+      if (this.onSuccess != null) {
+        return this.onSuccess(data);
       }
     };
 
-    Channel.prototype._failure_launcher = function(data) {
-      if (this.on_failure != null) {
-        return this.on_failure(data);
+    Channel.prototype._failureLauncher = function(data) {
+      if (this.onFailure != null) {
+        return this.onFailure(data);
       }
     };
 

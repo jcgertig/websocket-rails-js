@@ -1,65 +1,66 @@
+'use strict';
+/* global WebSocketRails */
 
 /*
 WebSocket Interface for the WebSocketRails client.
  */
 
- var {WebSocketRails} = import('./websocket_rails');
- module.exports = (function() {
+module.exports = (function() {
   WebSocketRails.Connection = (function() {
     function Connection(url, dispatcher) {
       this.url = url;
       this.dispatcher = dispatcher;
-      this.message_queue = [];
+      this.messageQueue = [];
       this.state = 'connecting';
-      this.connection_id;
+      this.connectionId = null;
       if (!(this.url.match(/^wss?:\/\//) || this.url.match(/^ws?:\/\//))) {
         if (window.location.protocol === 'https:') {
-          this.url = "wss://" + this.url;
+          this.url = 'wss://' + this.url;
         } else {
-          this.url = "ws://" + this.url;
+          this.url = 'ws://' + this.url;
         }
       }
       this._conn = new WebSocket(this.url);
       this._conn.onmessage = (function(_this) {
         return function(event) {
-          var event_data;
-          event_data = JSON.parse(event.data);
-          return _this.on_message(event_data);
+          var eventData;
+          eventData = JSON.parse(event.data);
+          return _this.onMessage(eventData);
         };
       })(this);
       this._conn.onclose = (function(_this) {
         return function(event) {
-          return _this.on_close(event);
+          return _this.onClose(event);
         };
       })(this);
       this._conn.onerror = (function(_this) {
         return function(event) {
-          return _this.on_error(event);
+          return _this.onError(event);
         };
       })(this);
     }
 
-    Connection.prototype.on_message = function(event) {
-      return this.dispatcher.new_message(event);
+    Connection.prototype.onMessage = function(event) {
+      return this.dispatcher.newMessage(event);
     };
 
-    Connection.prototype.on_close = function(event) {
+    Connection.prototype.onClose = function(event) {
       var data;
       this.dispatcher.state = 'disconnected';
       data = (event != null ? event.data : void 0) ? event.data : event;
-      return this.dispatcher.dispatch(new WebSocketRails.Event(['connection_closed', data]));
+      return this.dispatcher.dispatch(new WebSocketRails.Event(['connectionClosed', data]));
     };
 
-    Connection.prototype.on_error = function(event) {
+    Connection.prototype.onError = function(event) {
       this.dispatcher.state = 'disconnected';
-      return this.dispatcher.dispatch(new WebSocketRails.Event(['connection_error', event.data]));
+      return this.dispatcher.dispatch(new WebSocketRails.Event(['connectionError', event.data]));
     };
 
     Connection.prototype.trigger = function(event) {
       if (this.dispatcher.state !== 'connected') {
-        return this.message_queue.push(event);
+        return this.messageQueue.push(event);
       } else {
-        return this.send_event(event);
+        return this.sendEvent(event);
       }
     };
 
@@ -67,22 +68,24 @@ WebSocket Interface for the WebSocketRails client.
       return this._conn.close();
     };
 
-    Connection.prototype.setConnectionId = function(connection_id) {
-      return this.connection_id = connection_id;
+    Connection.prototype.setConnectionId = function(connectionId) {
+      this.connectionId = connectionId;
+      return this.connectionId;
     };
 
-    Connection.prototype.send_event = function(event) {
+    Connection.prototype.sendEvent = function(event) {
       return this._conn.send(event.serialize());
     };
 
-    Connection.prototype.flush_queue = function() {
+    Connection.prototype.flushQueue = function() {
       var event, _i, _len, _ref;
-      _ref = this.message_queue;
+      _ref = this.messageQueue;
       for (_i = 0, _len = _ref.length; _i < _len; _i++) {
         event = _ref[_i];
         this.trigger(event);
       }
-      return this.message_queue = [];
+      this.messageQueue = [];
+      return this.messageQueue;
     };
 
     return Connection;

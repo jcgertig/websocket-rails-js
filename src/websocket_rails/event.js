@@ -1,15 +1,16 @@
+'use strict';
+/* global WebSocketRails */
 
 /*
 The Event object stores all the relevant event information.
  */
 
- var {WebSocketRails} = import('./websocket_rails');
- module.exports = (function() {
+module.exports = (function() {
   WebSocketRails.Event = (function() {
-    function Event(message, success_callback, failure_callback) {
+    function Event(message, successCallback, failureCallback) {
       var options;
-      this.success_callback = success_callback;
-      this.failure_callback = failure_callback;
+      this.successCallback = successCallback;
+      this.failureCallback = failureCallback;
       this.name = message[0];
       this.data = message[1];
       options = message[2];
@@ -17,7 +18,7 @@ The Event object stores all the relevant event information.
         this.id = options['id'] != null ? options['id'] : ((1 + Math.random()) * 0x10000) | 0;
         this.channel = options.channel;
         this.token = options.token;
-        this.connection_id = options.connection_id;
+        this.connectionId = options.connectionId;
         if (options.success != null) {
           this.result = true;
           this.success = options.success;
@@ -25,38 +26,38 @@ The Event object stores all the relevant event information.
       }
     }
 
-    Event.prototype.is_channel = function() {
+    Event.prototype.isChannel = function() {
       return this.channel != null;
     };
 
-    Event.prototype.is_result = function() {
+    Event.prototype.isResult = function() {
       return typeof this.result !== 'undefined';
     };
 
-    Event.prototype.is_ping = function() {
+    Event.prototype.isPing = function() {
       return this.name === 'websocket_rails.ping';
     };
 
     Event.prototype.serialize = function() {
-      return JSON.stringify([this.name, this.data, this.meta_data()]);
+      return JSON.stringify([this.name, this.data, this.metaData()]);
     };
 
-    Event.prototype.meta_data = function() {
+    Event.prototype.metaData = function() {
       return {
         id: this.id,
-        connection_id: this.connection_id,
+        connectionId: this.connectionId,
         channel: this.channel,
         token: this.token
       };
     };
 
-    Event.prototype.run_callbacks = function(success, result) {
+    Event.prototype.runCallbacks = function(success, result) {
       this.success = success;
       this.result = result;
       if (this.success === true) {
-        return typeof this.success_callback === "function" ? this.success_callback(this.result) : void 0;
+        return typeof this.successCallback === 'function' ? this.successCallback(this.result) : void 0;
       } else {
-        return typeof this.failure_callback === "function" ? this.failure_callback(this.result) : void 0;
+        return typeof this.failureCallback === 'function' ? this.failureCallback(this.result) : void 0;
       }
     };
 

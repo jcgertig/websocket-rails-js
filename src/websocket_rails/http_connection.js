@@ -1,27 +1,44 @@
+'use strict';
+/* global ActiveXObject, WebSocketRails */
 
 /*
  HTTP Interface for the WebSocketRails client.
  */
-var {WebSocketRails} = import('./websocket_rails');
+
 module.exports = (function() {
   var __hasProp = {}.hasOwnProperty,
-    __extends = function(child, parent) { for (var key in parent) { if (__hasProp.call(parent, key)) child[key] = parent[key]; } function ctor() { this.constructor = child; } ctor.prototype = parent.prototype; child.prototype = new ctor(); child.__super__ = parent.prototype; return child; };
+      __extends = function(child, parent) {
+        for (var key in parent) {
+          if (__hasProp.call(parent, key)) {
+            child[key] = parent[key];
+          }
+        }
+
+        function Ctor() {
+          this.constructor = child;
+        }
+
+        Ctor.prototype = parent.prototype;
+        child.prototype = new Ctor();
+        child.__super__ = parent.prototype;
+        return child;
+      };
 
   WebSocketRails.HttpConnection = (function(_super) {
     __extends(HttpConnection, _super);
 
-    HttpConnection.prototype.connection_type = 'http';
+    HttpConnection.prototype.connectionType = 'http';
 
     HttpConnection.prototype._httpFactories = function() {
       return [
         function() {
           return new XMLHttpRequest();
         }, function() {
-          return new ActiveXObject("Msxml2.XMLHTTP");
+          return new ActiveXObject('Msxml2.XMLHTTP');
         }, function() {
-          return new ActiveXObject("Msxml3.XMLHTTP");
+          return new ActiveXObject('Msxml3.XMLHTTP');
         }, function() {
-          return new ActiveXObject("Microsoft.XMLHTTP");
+          return new ActiveXObject('Microsoft.XMLHTTP');
         }
       ];
     };
@@ -29,16 +46,16 @@ module.exports = (function() {
     function HttpConnection(url, dispatcher) {
       this.dispatcher = dispatcher;
       HttpConnection.__super__.constructor.apply(this, arguments);
-      this._url = "http://" + url;
+      this._url = 'http://' + url;
       this._conn = this._createXMLHttpObject();
-      this.last_pos = 0;
+      this.lastPos = 0;
       this._conn.onreadystatechange = (function(_this) {
         return function() {
-          return _this._parse_stream();
+          return _this._parseStream();
         };
       })(this);
-      this._conn.addEventListener("load", this.on_close, false);
-      this._conn.open("GET", this._url, true);
+      this._conn.addEventListener('load', this.onClose, false);
+      this._conn.open('GET', this._url, true);
       this._conn.send();
     }
 
@@ -46,17 +63,17 @@ module.exports = (function() {
       return this._conn.abort();
     };
 
-    HttpConnection.prototype.send_event = function(event) {
-      HttpConnection.__super__.send_event.apply(this, arguments);
-      return this._post_data(event.serialize());
+    HttpConnection.prototype.sendEvent = function(event) {
+      HttpConnection.__super__.sendEvent.apply(this, arguments);
+      return this._postData(event.serialize());
     };
 
-    HttpConnection.prototype._post_data = function(payload) {
+    HttpConnection.prototype._postData = function(payload) {
       return $.ajax(this._url, {
         type: 'POST',
         data: {
-          client_id: this.connection_id,
-          data: payload
+          'client_id' : this.connectionId,
+          'data' : payload
         },
         success: function() {}
       });
@@ -79,14 +96,14 @@ module.exports = (function() {
       return xmlhttp;
     };
 
-    HttpConnection.prototype._parse_stream = function() {
-      var data, event_data;
+    HttpConnection.prototype._parseStream = function() {
+      var data, eventData;
       if (this._conn.readyState === 3) {
-        data = this._conn.responseText.substring(this.last_pos);
-        this.last_pos = this._conn.responseText.length;
-        data = data.replace(/\]\]\[\[/g, "],[");
-        event_data = JSON.parse(data);
-        return this.on_message(event_data);
+        data = this._conn.responseText.substring(this.lastPos);
+        this.lastPos = this._conn.responseText.length;
+        data = data.replace(/\]\]\[\[/g, '],[');
+        eventData = JSON.parse(data);
+        return this.onMessage(eventData);
       }
     };
 

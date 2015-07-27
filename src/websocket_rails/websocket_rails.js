@@ -11,10 +11,10 @@ Setting up the dispatcher:
   })
 
 Triggering a new event on the server
-  dispatcherer.trigger('eventName',object_to_be_serialized_to_json);
+  dispatcherer.trigger('event_name',object_to_be_serialized_to_json);
 
 Listening for new events from the server
-  dispatcher.bind('eventName', function(data) {
+  dispatcher.bind('event_name', function(data) {
     console.log(data.user_name);
   });
 
@@ -48,7 +48,7 @@ var __bind = function(fn, me){
 var WebSocketRails = (function() {
   function WebSocketRails(url, useWebsockets) {
     this.url = url;
-    this.useWebsockets = useWebsockets != null ? useWebsockets : true;
+    this.useWebsockets = useWebsockets !== null ? useWebsockets : true;
     this.connectionStale = __bind(this.connectionStale, this);
     this.supportsWebsockets = __bind(this.supportsWebsockets, this);
     this.dispatchChannel = __bind(this.dispatchChannel, this);
@@ -91,7 +91,7 @@ var WebSocketRails = (function() {
 
   WebSocketRails.prototype.reconnect = function() {
     var event, id, oldConnectionId, _ref, _ref1;
-    oldConnectionId = (_ref = this._conn) != null ? _ref.connectionId : void 0;
+    oldConnectionId = (_ref = this._conn) !== null ? _ref.connectionId : void 0;
     this.disconnect();
     this.connect();
     _ref1 = this.queue;
@@ -108,7 +108,7 @@ var WebSocketRails = (function() {
     var event, _ref;
     event = new WebSocketRails.Event(data);
     if (event.isResult()) {
-      if ((_ref = this.queue[event.id]) != null) {
+      if ((_ref = this.queue[event.id]) !== null) {
         _ref.runCallbacks(event.success, event.data);
       }
       this.queue[event.id] = null;
@@ -126,7 +126,7 @@ var WebSocketRails = (function() {
     this.state = 'connected';
     this._conn.setConnectionId(event.connectionId);
     this._conn.flushQueue();
-    if (this.onOpen != null) {
+    if (this.onOpen !== null) {
       return this.onOpen(event.data);
     }
   };

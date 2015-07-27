@@ -46,13 +46,13 @@ WebSocket Interface for the WebSocketRails client.
     Connection.prototype.onClose = function(event) {
       var data;
       this.dispatcher.state = 'disconnected';
-      data = (event != null ? event.data : void 0) ? event.data : event;
-      return this.dispatcher.dispatch(new WebSocketEvent(['connectionClosed', data]));
+      data = (event !== null ? event.data : void 0) ? event.data : event;
+      return this.dispatcher.dispatch(new WebSocketEvent(['connection_closed', data]));
     };
 
     Connection.prototype.onError = function(event) {
       this.dispatcher.state = 'disconnected';
-      return this.dispatcher.dispatch(new WebSocketEvent(['connectionError', event.data]));
+      return this.dispatcher.dispatch(new WebSocketEvent(['connection_error', event.data]));
     };
 
     Connection.prototype.trigger = function(event) {

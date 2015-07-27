@@ -31,12 +31,12 @@ For instance:
     } else {
       eventName = 'websocket_rails.subscribe';
     }
-    this.connectionId = (_ref = this._dispatcher._conn) != null ? _ref.connectionId : void 0;
+    this.connectionId = (_ref = this._dispatcher._conn) !== null ? _ref.connectionId : void 0;
     event = new WebSocketEvent([
       eventName, {
-        channel: this.name
+        'channel': this.name
       }, {
-        connectionId: this.connectionId
+        'connection_id': this.connectionId
       }
     ], this._successLauncher, this._failureLauncher);
     this._dispatcher.triggerEvent(event);
@@ -51,14 +51,14 @@ For instance:
 
   Channel.prototype.destroy = function() {
     var event, eventName, _ref;
-    if (this.connectionId === ((_ref = this._dispatcher._conn) != null ? _ref.connectionId : void 0)) {
+    if (this.connectionId === ((_ref = this._dispatcher._conn) !== null ? _ref.connectionId : void 0)) {
       eventName = 'websocket_rails.unsubscribe';
       event = new WebSocketEvent([
         eventName, {
-          channel: this.name
+          'channel': this.name
         }, {
-          connectionId: this.connectionId,
-          token: this._token
+          'connection_id': this.connectionId,
+          'token': this._token
         }
       ]);
       this._dispatcher.triggerEvent(event);
@@ -83,9 +83,9 @@ For instance:
     var event;
     event = new WebSocketEvent([
       eventName, message, {
-        connectionId: this.connectionId,
-        channel: this.name,
-        token: this._token
+        'connection_id': this.connectionId,
+        'channel': this.name,
+        'token': this._token
       }
     ]);
     if (!this._token) {
@@ -121,13 +121,13 @@ For instance:
   };
 
   Channel.prototype._successLauncher = function(data) {
-    if (this.onSuccess != null) {
+    if (this.onSuccess !== null) {
       return this.onSuccess(data);
     }
   };
 
   Channel.prototype._failureLauncher = function(data) {
-    if (this.onFailure != null) {
+    if (this.onFailure !== null) {
       return this.onFailure(data);
     }
   };

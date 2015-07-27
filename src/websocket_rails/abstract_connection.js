@@ -22,16 +22,17 @@
   };
 
   AbstractConnection.prototype.sendEvent = function(event) {
-    if (this.connectionId != null) {
-      event.connectionId = this.connectionId;
-      return event.connectionId;
+    if (this.connectionId !== null) {
+      var attr = 'connection_id';
+      event[attr] = this.connectionId;
+      return event[attr];
     }
   };
 
   AbstractConnection.prototype.onClose = function(event) {
     var closeEvent;
     if (this.dispatcher && this.dispatcher._conn === this) {
-      closeEvent = new WebSocketEvent(['connectionClosed', event]);
+      closeEvent = new WebSocketEvent(['connection_closed', event]);
       this.dispatcher.state = 'disconnected';
       return this.dispatcher.dispatch(closeEvent);
     }
@@ -40,7 +41,7 @@
   AbstractConnection.prototype.onError = function(event) {
     var errorEvent;
     if (this.dispatcher && this.dispatcher._conn === this) {
-      errorEvent = new WebSocketEvent(['connectionError', event]);
+      errorEvent = new WebSocketEvent(['connection_error', event]);
       this.dispatcher.state = 'disconnected';
       return this.dispatcher.dispatch(errorEvent);
     }

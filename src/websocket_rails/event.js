@@ -1,5 +1,4 @@
 'use strict';
-/* global WebSocketRails */
 
 /*
 The WebsocketEvent object stores all the relevant event information.
@@ -12,20 +11,20 @@ var WebsocketEvent = function(message, successCallback, failureCallback) {
   this.name = message[0];
   this.data = message[1];
   options = message[2];
-  if (options != null) {
-    this.id = options['id'] != null ? options['id'] : ((1 + Math.random()) * 0x10000) | 0;
+  if (options !== null) {
+    this.id = options.id !== null ? options.id : (((1 + Math.random()) * 0x10000) | 0);
     this.channel = options.channel;
     this.token = options.token;
     this.connectionId = options.connectionId;
-    if (options.success != null) {
+    if (options.success !== null) {
       this.result = true;
       this.success = options.success;
     }
   }
-}
+};
 
 WebsocketEvent.prototype.isChannel = function() {
-  return this.channel != null;
+  return this.channel !== null;
 };
 
 WebsocketEvent.prototype.isResult = function() {
@@ -42,10 +41,10 @@ WebsocketEvent.prototype.serialize = function() {
 
 WebsocketEvent.prototype.metaData = function() {
   return {
-    id: this.id,
-    connectionId: this.connectionId,
-    channel: this.channel,
-    token: this.token
+    'id': this.id,
+    'connection_id': this.connectionId,
+    'channel': this.channel,
+    'token': this.token
   };
 };
 

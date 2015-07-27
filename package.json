@@ -29,8 +29,5 @@
     "grunt-cli": "^0.1.13",
     "grunt-contrib-jshint": "^0.11.2",
     "grunt-contrib-uglify": "^0.9.1"
-  },
-  "dependencies": {
-    "websocket-rails-js": "git://github.com/jcgertig/websocket-rails-js"
   }
 }

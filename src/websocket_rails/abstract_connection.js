@@ -8,64 +8,61 @@ var WebSocketEvent = require('./event');
 
 var AbstractConnection = function(url, dispatcher) {
   this.dispatcher = dispatcher;
-  this.messageQueue = [];
+  this.message_queue = [];
 };
 
 AbstractConnection.prototype.close = function() {};
 
 AbstractConnection.prototype.trigger = function(event) {
   if (this.dispatcher.state !== 'connected') {
-    return this.messageQueue.push(event);
+    return this.message_queue.push(event);
   } else {
-    return this.sendEvent(event);
+    return this.send_event(event);
   }
 };
 
-AbstractConnection.prototype.sendEvent = function(event) {
-  if (this.connectionId !== null) {
-    var attr = 'connection_id';
-    event[attr] = this.connectionId;
-    return event[attr];
+AbstractConnection.prototype.send_event = function(event) {
+  if (this.connection_id != null) {
+    return event.connection_id = this.connection_id;
   }
 };
 
-AbstractConnection.prototype.onClose = function(event) {
-  var closeEvent;
+AbstractConnection.prototype.on_close = function(event) {
+  var close_event;
   if (this.dispatcher && this.dispatcher._conn === this) {
-    closeEvent = new WebSocketEvent(['connection_closed', event]);
+    close_event = new WebSocketEvent(['connection_closed', event]);
     this.dispatcher.state = 'disconnected';
-    return this.dispatcher.dispatch(closeEvent);
+    return this.dispatcher.dispatch(close_event);
   }
 };
 
-AbstractConnection.prototype.onError = function(event) {
-  var errorEvent;
+AbstractConnection.prototype.on_error = function(event) {
+  var error_event;
   if (this.dispatcher && this.dispatcher._conn === this) {
-    errorEvent = new WebSocketEvent(['connection_error', event]);
+    error_event = new WebSocketEvent(['connection_error', event]);
     this.dispatcher.state = 'disconnected';
-    return this.dispatcher.dispatch(errorEvent);
+    return this.dispatcher.dispatch(error_event);
   }
 };
 
-AbstractConnection.prototype.onMessage = function(eventData) {
+AbstractConnection.prototype.on_message = function(event_data) {
   if (this.dispatcher && this.dispatcher._conn === this) {
-    return this.dispatcher.newMessage(eventData);
+    return this.dispatcher.new_message(event_data);
   }
 };
 
-AbstractConnection.prototype.setConnectionId = function(connectionId) {
-  this.connectionId = connectionId;
+AbstractConnection.prototype.setConnectionId = function(connection_id) {
+  this.connection_id = connection_id;
 };
 
-AbstractConnection.prototype.flushQueue = function() {
-  var event, _i, _len, _ref;
-  _ref = this.messageQueue;
-  for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-    event = _ref[_i];
+AbstractConnection.prototype.flush_queue = function() {
+  var event, i, len, ref;
+  ref = this.message_queue;
+  for (i = 0, len = ref.length; i < len; i++) {
+    event = ref[i];
     this.trigger(event);
   }
-  this.messageQueue = [];
-  return this.messageQueue;
+  return this.message_queue = [];
 };
 
 module.exports = AbstractConnection;

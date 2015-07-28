@@ -9,33 +9,40 @@ var WebSocketConnection = function(url, dispatcher) {
   this.dispatcher = dispatcher;
   WebSocketConnection.__super__.constructor.apply(this, arguments);
   if (this.url.match(/^wss?:\/\//)) {
-    console.log('WARNING: Using connection urls with protocol specified is depricated');
+    console.log("WARNING: Using connection urls with protocol specified is depricated");
+  } else if (window.location.protocol === 'https:') {
+    this.url = "wss://" + this.url;
   } else {
-    this.url = window.location.protocol === 'https:' ? 'wss://'+this.url : 'ws://'+this.url;
+    this.url = "ws://" + this.url;
   }
-
-  this._conn = new window.WebSocket(this.url);
-  this._conn.onmessage = function(event) {
-      var eventData;
-      eventData = JSON.parse(event.data);
-      return this.onMessage(eventData);
-    }.bind(this);
-  this._conn.onclose = function(event) {
-      return this.onClose(event);
-    }.bind(this);
-  this._conn.onerror = function(event) {
-      return this.onError(event);
-    }.bind(this);
+  this._conn = new WebSocket(this.url);
+  this._conn.onmessage = (function(_this) {
+    return function(event) {
+      var event_data;
+      event_data = JSON.parse(event.data);
+      return _this.on_message(event_data);
+    };
+  })(this);
+  this._conn.onclose = (function(_this) {
+    return function(event) {
+      return _this.on_close(event);
+    };
+  })(this);
+  this._conn.onerror = (function(_this) {
+    return function(event) {
+      return _this.on_error(event);
+    };
+  })(this);
 };
 
-WebSocketConnection.prototype.connectionType = 'websocket';
+WebSocketConnection.prototype.connection_type = 'websocket';
 
 WebSocketConnection.prototype.close = function() {
   return this._conn.close();
 };
 
-WebSocketConnection.prototype.sendEvent = function(event) {
-  WebSocketConnection.__super__.sendEvent.apply(this, arguments);
+WebSocketConnection.prototype.send_event = function(event) {
+  WebSocketConnection.__super__.send_event.apply(this, arguments);
   return this._conn.send(event.serialize());
 };
 

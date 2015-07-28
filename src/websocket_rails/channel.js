@@ -11,124 +11,118 @@ For instance:
  */
 
 var WebSocketEvent = require('./event');
-var __bind = function(fn, me){
-              return function(){
-                return fn.apply(me, arguments);
-              };
-            };
+var bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
-var Channel = function(name, _dispatcher, isPrivate, onSuccess, onFailure) {
-  var event, eventName, _ref;
+var Channel = function(name, _dispatcher, is_private, on_success, on_failure) {
+  var event, event_name, ref;
   this.name = name;
   this._dispatcher = _dispatcher;
-  this.isPrivate = isPrivate;
-  this.onSuccess = onSuccess;
-  this.onFailure = onFailure;
-  this._failureLauncher = __bind(this._failureLauncher, this);
-  this._successLauncher = __bind(this._successLauncher, this);
-  if (this.isPrivate) {
-    eventName = 'websocket_rails.subscribe_private';
+  this.is_private = is_private;
+  this.on_success = on_success;
+  this.on_failure = on_failure;
+  this._failure_launcher = bind(this._failure_launcher, this);
+  this._success_launcher = bind(this._success_launcher, this);
+  if (this.is_private) {
+    event_name = 'websocket_rails.subscribe_private';
   } else {
-    eventName = 'websocket_rails.subscribe';
+    event_name = 'websocket_rails.subscribe';
   }
-  this.connectionId = (_ref = this._dispatcher._conn) !== null ? _ref.connectionId : void 0;
+  this.connection_id = (ref = this._dispatcher._conn) != null ? ref.connection_id : void 0;
   event = new WebSocketEvent([
-    eventName, {
-      'channel': this.name
+    event_name, {
+      channel: this.name
     }, {
-      'connection_id': this.connectionId
+      connection_id: this.connection_id
     }
-  ], this._successLauncher, this._failureLauncher);
-  this._dispatcher.triggerEvent(event);
+  ], this._success_launcher, this._failure_launcher);
+  this._dispatcher.trigger_event(event);
   this._callbacks = {};
   this._token = void 0;
   this._queue = [];
 };
 
-Channel.prototype.isPublic = function() {
-  return !this.isPrivate;
+Channel.prototype.is_public = function() {
+  return !this.is_private;
 };
 
 Channel.prototype.destroy = function() {
-  var event, eventName, _ref;
-  if (this.connectionId === ((_ref = this._dispatcher._conn) !== null ? _ref.connectionId : void 0)) {
-    eventName = 'websocket_rails.unsubscribe';
+  var event, event_name, ref;
+  if (this.connection_id === ((ref = this._dispatcher._conn) != null ? ref.connection_id : void 0)) {
+    event_name = 'websocket_rails.unsubscribe';
     event = new WebSocketEvent([
-      eventName, {
-        'channel': this.name
+      event_name, {
+        channel: this.name
       }, {
-        'connection_id': this.connectionId,
-        'token': this._token
+        connection_id: this.connection_id,
+        token: this._token
       }
     ]);
-    this._dispatcher.triggerEvent(event);
+    this._dispatcher.trigger_event(event);
   }
-  this._callbacks = {};
-  return this._callbacks;
+  return this._callbacks = {};
 };
 
-Channel.prototype.bind = function(eventName, callback) {
-  var _base;
-  if ((_base = this._callbacks)[eventName] === null) {
-    _base[eventName] = [];
+Channel.prototype.bind = function(event_name, callback) {
+  var base;
+  if ((base = this._callbacks)[event_name] == null) {
+    base[event_name] = [];
   }
-  return this._callbacks[eventName].push(callback);
+  return this._callbacks[event_name].push(callback);
 };
 
-Channel.prototype.unbind = function(eventName) {
-  return delete this._callbacks[eventName];
+Channel.prototype.unbind = function(event_name) {
+  return delete this._callbacks[event_name];
 };
 
-Channel.prototype.trigger = function(eventName, message) {
+Channel.prototype.trigger = function(event_name, message) {
   var event;
   event = new WebSocketEvent([
-    eventName, message, {
-      'connection_id': this.connectionId,
-      'channel': this.name,
-      'token': this._token
+    event_name, message, {
+      connection_id: this.connection_id,
+      channel: this.name,
+      token: this._token
     }
   ]);
   if (!this._token) {
     return this._queue.push(event);
   } else {
-    return this._dispatcher.triggerEvent(event);
+    return this._dispatcher.trigger_event(event);
   }
 };
 
-Channel.prototype.dispatch = function(eventName, message) {
-  var callback, event, _i, _j, _len, _len1, _ref, _ref1, _results;
-  if (eventName === 'websocket_rails.channel_token') {
-    this._token = message.token;
-    _ref = this._queue;
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      event = _ref[_i];
-      this._dispatcher.triggerEvent(event);
+Channel.prototype.dispatch = function(event_name, message) {
+  var callback, event, i, j, len, len1, ref, ref1, results;
+  if (event_name === 'websocket_rails.channel_token') {
+    this._token = message['token'];
+    ref = this._queue;
+    for (i = 0, len = ref.length; i < len; i++) {
+      event = ref[i];
+      this._dispatcher.trigger_event(event);
     }
-    this._queue = [];
-    return this._queue;
+    return this._queue = [];
   } else {
-    if (this._callbacks[eventName] === null) {
+    if (this._callbacks[event_name] == null) {
       return;
     }
-    _ref1 = this._callbacks[eventName];
-    _results = [];
-    for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
-      callback = _ref1[_j];
-      _results.push(callback(message));
+    ref1 = this._callbacks[event_name];
+    results = [];
+    for (j = 0, len1 = ref1.length; j < len1; j++) {
+      callback = ref1[j];
+      results.push(callback(message));
     }
-    return _results;
+    return results;
   }
 };
 
-Channel.prototype._successLauncher = function(data) {
-  if (this.onSuccess !== null) {
-    return this.onSuccess(data);
+Channel.prototype._success_launcher = function(data) {
+  if (this.on_success != null) {
+    return this.on_success(data);
   }
 };
 
-Channel.prototype._failureLauncher = function(data) {
-  if (this.onFailure !== null) {
-    return this.onFailure(data);
+Channel.prototype._failure_launcher = function(data) {
+  if (this.on_failure != null) {
+    return this.on_failure(data);
   }
 };
 

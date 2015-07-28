@@ -2,8 +2,6 @@
 WebSocket Interface for the WebSocketRails client.
 ###
 class WebSocketRails.WebSocketConnection extends WebSocketRails.AbstractConnection
-  connection_type: 'websocket'
-
   constructor: (@url, @dispatcher) ->
     super
     if @url.match(/^wss?:\/\//)
@@ -20,6 +18,8 @@ class WebSocketRails.WebSocketConnection extends WebSocketRails.AbstractConnecti
       @on_close(event)
     @_conn.onerror   = (event) =>
       @on_error(event)
+
+  connection_type: 'websocket'
 
   close: ->
     @_conn.close()

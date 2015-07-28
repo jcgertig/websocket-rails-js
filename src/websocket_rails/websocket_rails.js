@@ -21,11 +21,11 @@ Listening for new events from the server
 Stop listening for new events from the server
   dispatcher.unbind('event')
  */
-
-var __extends = function(child, parent) {
-      for (var key in parent.prototype) {
-        if (!child.prototype.hasOwnProperty(key)) {
-          child.prototype[key] = parent.prototype[key];
+var hasProp = {}.hasOwnProperty,
+    extend = function(child, parent) {
+      for (var key in parent) {
+        if (hasProp.call(parent, key)) {
+          child[key] = parent[key];
         }
       }
 
@@ -33,10 +33,15 @@ var __extends = function(child, parent) {
         this.constructor = child;
       }
 
-      Ctor.prototype = child.prototype;
+      Ctor.prototype = parent.prototype;
       child.prototype = new Ctor();
       child.__super__ = parent.prototype;
       return child;
+    },
+    bind = function(fn, me){
+      return function(){
+        return fn.apply(me, arguments);
+      };
     };
 
 var AbstractConnection = require('./abstract_connection');
@@ -44,40 +49,39 @@ var WebSocketChannel = require('./channel');
 var WebSocketEvent = require('./event');
 var HttpConnection = require('./http_connection');
 var WebSocketConnection = require('./websocket_connection');
-__extends(HttpConnection, AbstractConnection);
-__extends(WebSocketConnection, AbstractConnection);
+extend(HttpConnection, AbstractConnection);
+extend(WebSocketConnection, AbstractConnection);
 
-var WebSocketRails = function(url, useWebsockets) {
+var WebSocketRails = function(url, use_websockets) {
   this.url = url;
-  this.useWebsockets = typeof useWebsockets !== 'undefined' ? useWebsockets : true;
-  this.connectionStale = this.connectionStale.bind(this);
-  this.supportsWebsockets = this.supportsWebsockets.bind(this);
-  this.dispatchChannel = this.dispatchChannel.bind(this);
-  this.unsubscribe = this.unsubscribe.bind(this);
-  this.subscribePrivate = this.subscribePrivate.bind(this);
-  this.subscribe = this.subscribe.bind(this);
-  this.dispatch = this.dispatch.bind(this);
-  this.triggerEvent = this.triggerEvent.bind(this);
-  this.trigger = this.trigger.bind(this);
-  this.bind = this.bind.bind(this);
-  this.connectionEstablished = this.connectionEstablished.bind(this);
-  this.newMessage = this.newMessage.bind(this);
-  this.reconnect = this.reconnect.bind(this);
+  this.use_websockets = use_websockets != null ? use_websockets : true;
+  this.connection_stale = bind(this.connection_stale, this);
+  this.supports_websockets = bind(this.supports_websockets, this);
+  this.dispatch_channel = bind(this.dispatch_channel, this);
+  this.unsubscribe = bind(this.unsubscribe, this);
+  this.subscribe_private = bind(this.subscribe_private, this);
+  this.subscribe = bind(this.subscribe, this);
+  this.dispatch = bind(this.dispatch, this);
+  this.trigger_event = bind(this.trigger_event, this);
+  this.trigger = bind(this.trigger, this);
+  this.bind = bind(this.bind, this);
+  this.connection_established = bind(this.connection_established, this);
+  this.new_message = bind(this.new_message, this);
+  this.reconnect = bind(this.reconnect, this);
   this.callbacks = {};
   this.channels = {};
   this.queue = {};
   this.connect();
-};
+}
 
 WebSocketRails.prototype.connect = function() {
   this.state = 'connecting';
-  if (!(this.supportsWebsockets() && this.useWebsockets)) {
+  if (!(this.supports_websockets() && this.use_websockets)) {
     this._conn = new HttpConnection(this.url, this);
   } else {
     this._conn = new WebSocketConnection(this.url, this);
   }
-  this._conn.newMessage = this.newMessage;
-  return this._conn;
+  return this._conn.new_message = this.new_message;
 };
 
 WebSocketRails.prototype.disconnect = function() {
@@ -86,156 +90,152 @@ WebSocketRails.prototype.disconnect = function() {
     delete this._conn._conn;
     delete this._conn;
   }
-  this.state = 'disconnected';
-  return this.state;
+  return this.state = 'disconnected';
 };
 
 WebSocketRails.prototype.reconnect = function() {
-  var event, id, oldConnectionId, _ref, _ref1;
-  oldConnectionId = (_ref = this._conn) !== null ? _ref.connectionId : void 0;
+  var event, id, old_connection_id, ref, ref1;
+  old_connection_id = (ref = this._conn) != null ? ref.connection_id : void 0;
   this.disconnect();
   this.connect();
-  _ref1 = this.queue;
-  for (id in _ref1) {
-    event = _ref1[id];
-    if (event.connectionId === oldConnectionId && !event.isResult()) {
-      this.triggerEvent(event);
+  ref1 = this.queue;
+  for (id in ref1) {
+    event = ref1[id];
+    if (event.connection_id === old_connection_id && !event.is_result()) {
+      this.trigger_event(event);
     }
   }
-  return this.reconnectChannels();
+  return this.reconnect_channels();
 };
 
-WebSocketRails.prototype.newMessage = function(data) {
-  var event, _ref;
+WebSocketRails.prototype.new_message = function(data) {
+  var event, ref;
   event = new WebSocketEvent(data);
-  if (event.isResult()) {
-    if ((_ref = this.queue[event.id]) !== null) {
-      _ref.runCallbacks(event.success, event.data);
+  if (event.is_result()) {
+    if ((ref = this.queue[event.id]) != null) {
+      ref.run_callbacks(event.success, event.data);
     }
     this.queue[event.id] = null;
-  } else if (event.isChannel()) {
-    this.dispatchChannel(event);
+  } else if (event.is_channel()) {
+    this.dispatch_channel(event);
   } else {
     this.dispatch(event);
   }
   if (this.state === 'connecting' && event.name === 'client_connected') {
-    return this.connectionEstablished(event);
+    return this.connection_established(event);
   }
 };
 
-WebSocketRails.prototype.connectionEstablished = function(event) {
+WebSocketRails.prototype.connection_established = function(event) {
   this.state = 'connected';
-  this._conn.setConnectionId(event.connectionId);
-  this._conn.flushQueue();
-  if (this.onOpen !== null) {
-    return this.onOpen(event.data);
+  this._conn.setConnectionId(event.connection_id);
+  this._conn.flush_queue();
+  if (this.on_open != null) {
+    return this.on_open(event.data);
   }
 };
 
-WebSocketRails.prototype.bind = function(eventName, callback) {
-  var _base;
-  if ((_base = this.callbacks)[eventName] === null) {
-    _base[eventName] = [];
+WebSocketRails.prototype.bind = function(event_name, callback) {
+  var base;
+  if ((base = this.callbacks)[event_name] == null) {
+    base[event_name] = [];
   }
-  return this.callbacks[eventName].push(callback);
+  return this.callbacks[event_name].push(callback);
 };
 
-WebSocketRails.prototype.trigger = function(eventName, data, successCallback, failureCallback) {
+WebSocketRails.prototype.trigger = function(event_name, data, success_callback, failure_callback) {
   var event;
   event = new WebSocketEvent([
-    eventName, data, {
-      'connection_id': this.connectionId
+    event_name, data, {
+      connection_id: this.connection_id
     }
-  ], successCallback, failureCallback);
+  ], success_callback, failure_callback);
   this.queue[event.id] = event;
   return this._conn.trigger(event);
 };
 
-WebSocketRails.prototype.triggerEvent = function(event) {
-  var _base, _name;
-  if ((_base = this.queue)[_name = event.id] === null) {
-    _base[_name] = event;
+WebSocketRails.prototype.trigger_event = function(event) {
+  var base, name1;
+  if ((base = this.queue)[name1 = event.id] == null) {
+    base[name1] = event;
   }
   this._conn.trigger(event);
   return event;
 };
 
 WebSocketRails.prototype.dispatch = function(event) {
-  var callback, _i, _len, _ref, _results;
-  console.log(event.name);
-  if (this.callbacks[event.name] === null) {
+  var callback, i, len, ref, results;
+  if (this.callbacks[event.name] == null) {
     return;
   }
-  _ref = this.callbacks[event.name];
-  _results = [];
-  if (_ref) {
-    for (_i = 0, _len = _ref.length; _i < _len; _i++) {
-      callback = _ref[_i];
-      _results.push(callback(event.data));
-    }
+  ref = this.callbacks[event.name];
+  results = [];
+  for (i = 0, len = ref.length; i < len; i++) {
+    callback = ref[i];
+    results.push(callback(event.data));
   }
-  return _results;
+  return results;
 };
 
-WebSocketRails.prototype.subscribe = function(channelName, successCallback, failureCallback) {
+WebSocketRails.prototype.subscribe = function(channel_name, success_callback, failure_callback) {
   var channel;
-  if (this.channels[channelName] === null) {
-    channel = new WebSocketChannel(channelName, this, false, successCallback, failureCallback);
-    this.channels[channelName] = channel;
+  if (this.channels[channel_name] == null) {
+    channel = new WebSocketChannel(channel_name, this, false, success_callback, failure_callback);
+    this.channels[channel_name] = channel;
     return channel;
   } else {
-    return this.channels[channelName];
+    return this.channels[channel_name];
   }
 };
 
-WebSocketRails.prototype.subscribePrivate = function(channelName, successCallback, failureCallback) {
+WebSocketRails.prototype.subscribe_private = function(channel_name, success_callback, failure_callback) {
   var channel;
-  if (this.channels[channelName] === null) {
-    channel = new WebSocketChannel(channelName, this, true, successCallback, failureCallback);
-    this.channels[channelName] = channel;
+  if (this.channels[channel_name] == null) {
+    channel = new WebSocketChannel(channel_name, this, true, success_callback, failure_callback);
+    this.channels[channel_name] = channel;
     return channel;
   } else {
-    return this.channels[channelName];
+    return this.channels[channel_name];
   }
 };
 
-WebSocketRails.prototype.unsubscribe = function(channelName) {
-  if (this.channels[channelName] === null) {
+WebSocketRails.prototype.unsubscribe = function(channel_name) {
+  if (this.channels[channel_name] == null) {
     return;
   }
-  this.channels[channelName].destroy();
-  return delete this.channels[channelName];
+  this.channels[channel_name].destroy();
+  return delete this.channels[channel_name];
 };
 
-WebSocketRails.prototype.dispatchChannel = function(event) {
-  if (typeof this.channels[event.channel] === 'undefined' || this.channels[event.channel] === null) {
+WebSocketRails.prototype.dispatch_channel = function(event) {
+  if (this.channels[event.channel] == null) {
     return;
   }
   return this.channels[event.channel].dispatch(event.name, event.data);
 };
 
-WebSocketRails.prototype.supportsWebsockets = function() {
-  return typeof window.WebSocket === 'function' || typeof window.WebSocket === 'object';
+WebSocketRails.prototype.supports_websockets = function() {
+  return typeof WebSocket === "function" || typeof WebSocket === "object";
 };
 
-WebSocketRails.prototype.connectionStale = function() {
+WebSocketRails.prototype.connection_stale = function() {
   return this.state !== 'connected';
 };
 
-WebSocketRails.prototype.reconnectChannels = function() {
-  var callbacks, channel, name, _ref, _results;
-  _ref = this.channels;
-  _results = [];
-  for (name in _ref) {
-    channel = _ref[name];
+WebSocketRails.prototype.reconnect_channels = function() {
+  var callbacks, channel, name, ref, results;
+  ref = this.channels;
+  results = [];
+  for (name in ref) {
+    channel = ref[name];
     callbacks = channel._callbacks;
     channel.destroy();
     delete this.channels[name];
-    channel = channel.isPrivate ? this.subscribePrivate(name) : this.subscribe(name);
+    channel = channel.is_private ? this.subscribe_private(name) : this.subscribe(name);
     channel._callbacks = callbacks;
-    _results.push(channel);
+    results.push(channel);
   }
-  return _results;
+  return results;
 };
 
 module.exports = WebSocketRails;

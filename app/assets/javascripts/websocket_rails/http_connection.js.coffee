@@ -2,14 +2,6 @@
  HTTP Interface for the WebSocketRails client.
 ###
 class WebSocketRails.HttpConnection extends WebSocketRails.AbstractConnection
-  connection_type: 'http'
-
-  _httpFactories: -> [
-    -> new XMLHttpRequest(),
-    -> new ActiveXObject("Msxml2.XMLHTTP"),
-    -> new ActiveXObject("Msxml3.XMLHTTP"),
-    -> new ActiveXObject("Microsoft.XMLHTTP")
-  ]
 
   constructor: (url, @dispatcher) ->
     super
@@ -20,6 +12,15 @@ class WebSocketRails.HttpConnection extends WebSocketRails.AbstractConnection
     @_conn.addEventListener("load", @on_close, false)
     @_conn.open "GET", @_url, true
     @_conn.send()
+
+  connection_type: 'http'
+
+  _httpFactories: -> [
+    -> new XMLHttpRequest(),
+    -> new ActiveXObject("Msxml2.XMLHTTP"),
+    -> new ActiveXObject("Msxml3.XMLHTTP"),
+    -> new ActiveXObject("Microsoft.XMLHTTP")
+  ]
 
   close: ->
     @_conn.abort()

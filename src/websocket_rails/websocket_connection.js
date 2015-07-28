@@ -15,7 +15,7 @@ var WebSocketConnection = function(url, dispatcher) {
   } else {
     this.url = "ws://" + this.url;
   }
-  this._conn = new window.WebSocket(this.url);
+  this._conn = new WebSocket(this.url);
   this._conn.onmessage = (function(_this) {
     return function(event) {
       var event_data;
@@ -33,7 +33,7 @@ var WebSocketConnection = function(url, dispatcher) {
       return _this.on_error(event);
     };
   })(this);
-};
+}
 
 WebSocketConnection.prototype.connection_type = 'websocket';
 

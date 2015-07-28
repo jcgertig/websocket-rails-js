@@ -2,6 +2,7 @@
 WebSocket Interface for the WebSocketRails client.
 ###
 class WebSocketRails.WebSocketConnection extends WebSocketRails.AbstractConnection
+
   constructor: (@url, @dispatcher) ->
     super
     if @url.match(/^wss?:\/\//)

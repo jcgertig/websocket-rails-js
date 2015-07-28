@@ -4,24 +4,24 @@
 The WebsocketEvent object stores all the relevant event information.
  */
 
-var WebsocketEvent = function(message, success_callback, failure_callback) {
-  var options;
+var WebsocketEvent = function(data, success_callback, failure_callback) {
+  var attr;
   this.success_callback = success_callback;
   this.failure_callback = failure_callback;
-  this.name = message[0];
-  this.data = message[1];
-  options = message[2];
-  if (options != null) {
-    this.id = options['id'] != null ? options['id'] : ((1 + Math.random()) * 0x10000) | 0;
-    this.channel = options.channel;
-    this.token = options.token;
-    this.connection_id = options.connection_id;
-    if (options.success != null) {
+  this.name = data[0];
+  attr = data[1];
+  if (attr != null) {
+    this.id = attr['id'] != null ? attr['id'] : ((1 + Math.random()) * 0x10000) | 0;
+    this.channel = attr.channel != null ? attr.channel : void 0;
+    this.data = attr.data != null ? attr.data : attr;
+    this.token = attr.token != null ? attr.token : void 0;
+    this.connection_id = data[2];
+    if (attr.success != null) {
       this.result = true;
-      this.success = options.success;
+      this.success = attr.success;
     }
   }
-};
+}
 
 WebsocketEvent.prototype.is_channel = function() {
   return this.channel != null;
@@ -36,14 +36,14 @@ WebsocketEvent.prototype.is_ping = function() {
 };
 
 WebsocketEvent.prototype.serialize = function() {
-  return JSON.stringify([this.name, this.data, this.meta_data()]);
+  return JSON.stringify([this.name, this.attributes()]);
 };
 
-WebsocketEvent.prototype.meta_data = function() {
+WebsocketEvent.prototype.attributes = function() {
   return {
     id: this.id,
-    connection_id: this.connection_id,
     channel: this.channel,
+    data: this.data,
     token: this.token
   };
 };
@@ -57,6 +57,5 @@ WebsocketEvent.prototype.run_callbacks = function(success, result) {
     return typeof this.failure_callback === "function" ? this.failure_callback(this.result) : void 0;
   }
 };
-
 
 module.exports = WebsocketEvent;

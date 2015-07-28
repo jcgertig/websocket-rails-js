@@ -21,11 +21,10 @@ Listening for new events from the server
 Stop listening for new events from the server
   dispatcher.unbind('event')
  */
-var hasProp = {}.hasOwnProperty,
-    extend = function(child, parent) {
-      for (var key in parent) {
-        if (hasProp.call(parent, key)) {
-          child[key] = parent[key];
+var extend = function(child, parent) {
+      for (var key in parent.prototype) {
+        if (!child.prototype.hasOwnProperty(key)) {
+          child.prototype[key] = parent.prototype[key];
         }
       }
 
@@ -33,15 +32,11 @@ var hasProp = {}.hasOwnProperty,
         this.constructor = child;
       }
 
-      Ctor.prototype = parent.prototype;
+      Ctor.prototype = child.prototype;
       child.prototype = new Ctor();
       child.__super__ = parent.prototype;
+
       return child;
-    },
-    bind = function(fn, me){
-      return function(){
-        return fn.apply(me, arguments);
-      };
     };
 
 var AbstractConnection = require('./abstract_connection');
@@ -55,21 +50,21 @@ extend(WebSocketConnection, AbstractConnection);
 var WebSocketRails = function(url, use_websockets) {
   this.url = url;
   this.use_websockets = use_websockets != null ? use_websockets : true;
-  this.connection_stale = bind(this.connection_stale, this);
-  this.pong = bind(this.pong, this);
-  this.supports_websockets = bind(this.supports_websockets, this);
-  this.dispatch_channel = bind(this.dispatch_channel, this);
-  this.unsubscribe = bind(this.unsubscribe, this);
-  this.subscribe_private = bind(this.subscribe_private, this);
-  this.subscribe = bind(this.subscribe, this);
-  this.dispatch = bind(this.dispatch, this);
-  this.trigger_event = bind(this.trigger_event, this);
-  this.trigger = bind(this.trigger, this);
-  this.unbind = bind(this.unbind, this);
-  this.bind = bind(this.bind, this);
-  this.connection_established = bind(this.connection_established, this);
-  this.new_message = bind(this.new_message, this);
-  this.reconnect = bind(this.reconnect, this);
+  this.connection_stale = this.connection_stale.bind(this);
+  this.pong = this.pong.bind(this);
+  this.supports_websockets = this.supports_websockets.bind(this);
+  this.dispatch_channel = this.dispatch_channel.bind(this);
+  this.unsubscribe = this.unsubscribe.bind(this);
+  this.subscribe_private = this.subscribe_private.bind(this);
+  this.subscribe = this.subscribe.bind(this);
+  this.dispatch = this.dispatch.bind(this);
+  this.trigger_event = this.trigger_event.bind(this);
+  this.trigger = this.trigger.bind(this);
+  this.unbind = this.unbind.bind(this);
+  this.bind = this.bind.bind(this);
+  this.connection_established = this.connection_established.bind(this);
+  this.new_message = this.new_message.bind(this);
+  this.reconnect = this.reconnect.bind(this);
   this.callbacks = {};
   this.channels = {};
   this.queue = {};

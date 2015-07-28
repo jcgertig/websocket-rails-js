@@ -54,7 +54,7 @@ extend(WebSocketConnection, AbstractConnection);
 
 var WebSocketRails = function(url, use_websockets) {
   this.url = url;
-  this.use_websockets = use_websockets != null ? use_websockets : true;
+  this.use_websockets = typeof use_websockets !== 'undefined' ? use_websockets : true;
   this.connection_stale = bind(this.connection_stale, this);
   this.supports_websockets = bind(this.supports_websockets, this);
   this.dispatch_channel = bind(this.dispatch_channel, this);
@@ -215,7 +215,7 @@ WebSocketRails.prototype.dispatch_channel = function(event) {
 };
 
 WebSocketRails.prototype.supports_websockets = function() {
-  return typeof WebSocket === "function" || typeof WebSocket === "object";
+  return typeof window.WebSocket === "function" || typeof window.WebSocket === "object";
 };
 
 WebSocketRails.prototype.connection_stale = function() {

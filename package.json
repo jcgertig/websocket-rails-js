@@ -1,6 +1,6 @@
 {
   "name": "websocket-rails-js",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Client js library for websocket-rails",
   "main": "src/websocket_rails/websocket_rails.js",
   "scripts": {

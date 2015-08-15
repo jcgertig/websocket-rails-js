@@ -33,7 +33,7 @@ var WebSocketConnection = function(url, dispatcher) {
       return _this.on_error(event);
     };
   })(this);
-}
+};
 
 WebSocketConnection.prototype.connection_type = 'websocket';
 

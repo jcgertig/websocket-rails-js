@@ -6,7 +6,7 @@
 
 var WebSocketEvent = require('./event');
 
-var AbstractConnection = f(url, dispatcher) {
+var AbstractConnection = function(url, dispatcher) {
   this.dispatcher = dispatcher;
   this.message_queue = [];
 };
